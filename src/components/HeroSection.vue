@@ -1,33 +1,42 @@
 <template>
-  <section class="relative h-screen overflow-hidden">
-    <!-- 3D Floating Posters Background -->
-    <FloatingPosters />
-    
+  <section 
+    class="relative h-screen overflow-hidden transition-colors duration-300"
+    :class="uiStore.isDarkMode ? 'bg-cinema-black' : 'bg-white'"
+  >
+    <!-- 3D Background layers -->
+    <div class="absolute inset-0 z-0">
+      <FloatingPosters :mouse-x="mouseX" :mouse-y="mouseY" />
+      <ParticleScene />
+    </div>
+
     <!-- Dynamic Spotlight -->
     <div class="absolute inset-0 pointer-events-none">
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon/20 rounded-full blur-3xl animate-pulse"></div>
+      <div 
+        class="absolute w-[600px] h-[600px] bg-neon/10 rounded-full blur-[100px]"
+        :style="spotlightStyle"
+      ></div>
     </div>
     
     <div class="relative z-10 h-full flex items-center justify-center text-center">
-      <div data-aos="fade-up" data-aos-duration="1000">
-        <h1 class="text-6xl md:text-8xl font-display font-bold mb-6 animate-glow">
+      <div ref="contentRef" class="opacity-0 translate-y-8">
+        <h1 class="text-7xl md:text-9xl font-display font-bold mb-6 tracking-tight leading-none" :class="uiStore.isDarkMode ? 'text-white' : 'text-cinema-black'">
           Cinematic <span class="neon-text">Experience</span>
         </h1>
-        <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl px-4">
+        <p class="text-xl md:text-2xl mb-10 max-w-2xl px-4 mx-auto leading-relaxed" :class="uiStore.isDarkMode ? 'text-gray-300' : 'text-gray-600'">
           Immerse yourself in the ultimate movie experience with stunning visuals and premium sound
         </p>
         <div class="flex gap-4 justify-center">
-          <button class="px-8 py-4 bg-neon-gradient rounded-full font-semibold hover:scale-110 transition-transform">
-            Book Now
+          <button class="px-10 py-4 bg-neon-gradient rounded-full font-bold text-black hover:scale-105 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)] transition-all">
+            Book Now →
           </button>
-          <button class="px-8 py-4 glass-card rounded-full font-semibold hover:scale-110 transition-transform">
+          <button class="px-10 py-4 glass-card rounded-full font-bold hover:bg-white/10 transition-all">
             Watch Trailer
           </button>
         </div>
       </div>
     </div>
     
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-40">
       <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
       </svg>
@@ -36,5 +45,40 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, computed, onUnmounted } from 'vue'
+import gsap from 'gsap'
+import { useUiStore } from '../stores/ui'
 import FloatingPosters from './three/FloatingPosters.vue'
+import ParticleScene from './three/ParticleScene.vue'
+
+const uiStore = useUiStore()
+const contentRef = ref<HTMLElement | null>(null)
+const mouseX = ref(0)
+const mouseY = ref(0)
+
+const spotlightStyle = computed(() => ({
+  transform: `translate(${mouseX.value - 300}px, ${mouseY.value - 300}px)`
+}))
+
+const handleMouseMove = (e: MouseEvent) => {
+  mouseX.value = e.clientX
+  mouseY.value = e.clientY
+}
+
+onMounted(() => {
+  window.addEventListener('mousemove', handleMouseMove)
+  
+  // Smooth reveal animation
+  gsap.to(contentRef.value, {
+    opacity: 1,
+    y: 0,
+    duration: 1.5,
+    ease: 'power4.out',
+    delay: 0.8
+  })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleMouseMove)
+})
 </script>

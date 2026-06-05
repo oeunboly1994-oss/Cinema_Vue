@@ -11,9 +11,12 @@
               <span>Tickets ({{ bookingStore.selectedSeats.length }})</span>
               <span>${{ bookingStore.totalPrice }}</span>
             </div>
-            <div class="flex justify-between pb-2 border-b border-white/10">
-              <span>Food Items</span>
-              <span>${{ cartStore.totalPrice }}</span>
+            <div v-for="item in cartStore.items" :key="item.id" class="flex justify-between items-center pb-2 border-b border-white/10">
+              <div class="flex items-center gap-3">
+                <img :src="item.image" :alt="item.name" class="w-10 h-10 object-cover rounded border border-white/5">
+                <span class="text-sm text-gray-300">{{ item.name }} (x{{ item.quantity }})</span>
+              </div>
+              <span class="text-sm font-medium text-white">${{ (item.price * item.quantity).toFixed(2) }}</span>
             </div>
             <div class="flex justify-between text-xl font-bold pt-2">
               <span>Total</span>
@@ -25,10 +28,25 @@
         <div class="glass-card p-8 mb-6">
           <h2 class="text-2xl font-bold mb-4">Payment Details</h2>
           <div class="space-y-4">
-            <input type="text" placeholder="Card Number" class="w-full px-4 py-3 bg-white/5 rounded-lg border border-white/10 focus:border-neon outline-none">
+            <input 
+              type="text" 
+              placeholder="Card Number" 
+              class="w-full px-4 py-3 rounded-lg border focus:border-neon outline-none"
+              :class="uiStore.isDarkMode ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-100 border-gray-200 text-gray-900'"
+            >
             <div class="grid grid-cols-2 gap-4">
-              <input type="text" placeholder="MM/YY" class="px-4 py-3 bg-white/5 rounded-lg border border-white/10 focus:border-neon outline-none">
-              <input type="text" placeholder="CVC" class="px-4 py-3 bg-white/5 rounded-lg border border-white/10 focus:border-neon outline-none">
+              <input 
+                type="text" 
+                placeholder="MM/YY" 
+                class="px-4 py-3 rounded-lg border focus:border-neon outline-none"
+                :class="uiStore.isDarkMode ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-100 border-gray-200 text-gray-900'"
+              >
+              <input 
+                type="text" 
+                placeholder="CVC" 
+                class="px-4 py-3 rounded-lg border focus:border-neon outline-none"
+                :class="uiStore.isDarkMode ? 'bg-white/5 border-white/10 text-white' : 'bg-gray-100 border-gray-200 text-gray-900'"
+              >
             </div>
           </div>
         </div>
@@ -76,10 +94,12 @@ import { useRouter } from 'vue-router'
 import DefaultLayout from '../layouts/DefaultLayout.vue'
 import { useBookingStore } from '../stores/booking'
 import { useCartStore } from '../stores/cart'
+import { useUiStore } from '../stores/ui'
 
 const router = useRouter()
 const bookingStore = useBookingStore()
 const cartStore = useCartStore()
+const uiStore = useUiStore()
 const paymentSuccess = ref(false)
 
 const totalAmount = computed(() => bookingStore.totalPrice + cartStore.totalPrice)

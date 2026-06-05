@@ -6,6 +6,10 @@ gsap.registerPlugin(ScrollTrigger)
 
 export function useScrollAnimation() {
   onMounted(() => {
+    // "Responsive": Skip heavy scroll animations on small screens
+    const isMobile = window.innerWidth < 768
+    if (isMobile) return
+
     gsap.utils.toArray('[data-scroll]').forEach((element: any) => {
       gsap.fromTo(element,
         { opacity: 0, y: 50 },
@@ -24,7 +28,14 @@ export function useScrollAnimation() {
     })
   })
   
+  // Call this after dynamic content updates (like filtering)
+  const refreshAnimations = () => {
+    ScrollTrigger.refresh()
+  }
+
   onUnmounted(() => {
     ScrollTrigger.getAll().forEach(trigger => trigger.kill())
   })
+
+  return { refreshAnimations }
 }

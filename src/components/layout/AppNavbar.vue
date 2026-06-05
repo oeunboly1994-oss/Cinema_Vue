@@ -2,7 +2,7 @@
   <nav class="fixed top-0 w-full z-50 glass-card rounded-none border-t-0 border-x-0 px-6 py-4">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <router-link to="/" class="text-2xl font-display font-bold">
-        CINEMA<span class="neon-text">HUB</span>
+        <span class="neon-text">REN CINEMA</span>
       </router-link>
       
       <div class="hidden md:flex gap-8">
@@ -17,7 +17,7 @@
         <button @click="uiStore.toggleTheme" class="p-2 rounded-full glass-card">
           {{ uiStore.isDarkMode ? '🌞' : '🌙' }}
         </button>
-        <button class="md:hidden p-2 rounded-full glass-card">
+        <button @click="uiStore.toggleSidebar" class="md:hidden p-2 rounded-full glass-card">
           ☰
         </button>
       </div>

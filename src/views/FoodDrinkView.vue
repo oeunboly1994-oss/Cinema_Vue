@@ -54,12 +54,15 @@
             Your cart is empty
           </div>
           <div v-else>
-            <div v-for="item in cartStore.items" :key="item.id" class="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
-              <div>
-                <p class="font-semibold">{{ item.name }}</p>
-                <p class="text-sm text-gray-400">${{ item.price }} x {{ item.quantity }}</p>
+            <div v-for="item in cartStore.items" :key="item.id" class="flex gap-4 items-center mb-4 pb-4 border-b border-white/10">
+              <img :src="item.image" :alt="item.name" class="w-16 h-16 object-cover rounded-lg border border-white/10">
+              <div class="flex-1">
+                <p class="font-semibold leading-tight text-white">{{ item.name }}</p>
+                <p class="text-sm text-gray-400 mt-1">${{ item.price }} × {{ item.quantity }}</p>
               </div>
-              <button @click="cartStore.removeItem(item.id)" class="text-red-500">Remove</button>
+              <button @click="cartStore.removeItem(item.id)" class="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors">
+                ✕
+              </button>
             </div>
             <div class="mt-6 pt-4 border-t border-white/20">
               <p class="text-xl font-bold">Total: ${{ cartStore.totalPrice }}</p>

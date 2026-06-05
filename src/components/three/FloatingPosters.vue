@@ -1,5 +1,5 @@
 <template>
-  <TresCanvas class="absolute inset-0 z-0" clear-color="#0A0A0F">
+  <TresCanvas class="absolute inset-0 z-0" :clear-color="uiStore.isDarkMode ? '#0A0A0F' : '#F9FAFB'">
     <TresPerspectiveCamera :position="[0, 2, 8]" :fov="45" />
     <TresOrbitControls v-if="false" />
     
@@ -8,7 +8,12 @@
     <TresPointLight :position="[-2, 3, 4]" :intensity="2" color="#00F3FF" />
     
     <TresGroup ref="postersGroup">
-      <TresMesh v-for="(poster, i) in posters" :key="i" :position="poster.position" :rotation="poster.rotation">
+      <TresMesh 
+        v-for="(poster, i) in posters" 
+        :key="i" 
+        :position="poster.position" 
+        :rotation="poster.rotation"
+      >
         <TresPlaneGeometry :args="[2.5, 3.7]" />
         <TresMeshStandardMaterial :map="poster.texture" :emissive="0xB026FF" :emissiveIntensity="0.2" />
       </TresMesh>
@@ -20,9 +25,17 @@
 import { ref, onMounted } from 'vue'
 import { TresCanvas } from '@tresjs/core'
 import * as THREE from 'three'
+import { useUiStore } from '../../stores/ui'
 
+const props = defineProps<{
+  mouseX: number
+  mouseY: number
+}>()
+
+const uiStore = useUiStore()
 const postersGroup = ref()
 const posters = ref<any[]>([])
+const lerpTarget = { x: 0, y: 0 }
 
 onMounted(() => {
   const textureLoader = new THREE.TextureLoader()
@@ -44,9 +57,16 @@ onMounted(() => {
   const animate = () => {
     time += 0.01
     if (postersGroup.value) {
+      // Interactive parallax tilt
+      lerpTarget.x += (props.mouseX / window.innerWidth - 0.5 - lerpTarget.x) * 0.05
+      lerpTarget.y += (props.mouseY / window.innerHeight - 0.5 - lerpTarget.y) * 0.05
+
+      postersGroup.value.rotation.y = lerpTarget.x * 0.2
+      postersGroup.value.rotation.x = -lerpTarget.y * 0.1
+
       postersGroup.value.children.forEach((child: THREE.Mesh, idx: number) => {
-        child.position.y = Math.sin(time + idx) * 0.2
-        child.rotation.y = Math.sin(time * 0.5 + idx) * 0.2
+        child.position.y = (Math.sin(time + idx) * 0.2)
+        child.rotation.y = (Math.sin(time * 0.5 + idx) * 0.1)
       })
     }
     requestAnimationFrame(animate)

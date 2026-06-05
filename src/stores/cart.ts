@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export interface CartItem {
   id: string
@@ -10,7 +10,14 @@ export interface CartItem {
 }
 
 export const useCartStore = defineStore('cart', () => {
-  const items = ref<CartItem[]>([])
+  // "EZ Use": Load cart from local storage on init
+  const items = ref<CartItem[]>(
+    JSON.parse(localStorage.getItem('cinema-cart') || '[]')
+  )
+
+  watch(items, (newItems) => {
+    localStorage.setItem('cinema-cart', JSON.stringify(newItems))
+  }, { deep: true })
   
   const totalItems = computed(() => items.value.reduce((sum, item) => sum + item.quantity, 0))
   

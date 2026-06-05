@@ -1,13 +1,18 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref } from 'vue'
 
-export function useTiltEffect(element: HTMLElement) {
+export function useTiltEffect(target: Ref<HTMLElement | null>) {
   const rotation = ref({ x: 0, y: 0 })
   
+  // Check for touch device to prevent unnecessary calculations/stutter
+  const isTouchDevice = typeof window !== 'undefined' && 
+    ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+
   const handleMouseMove = (e: MouseEvent) => {
-    const rect = element.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
-    rotation.value = { x: y * 20, y: x * 20 }
+    if (!target.value) return
+    const rect = target.value.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    rotation.value = { x: (y - 0.5) * -20, y: (x - 0.5) * 20 }
   }
   
   const handleMouseLeave = () => {
@@ -15,13 +20,15 @@ export function useTiltEffect(element: HTMLElement) {
   }
   
   onMounted(() => {
-    element.addEventListener('mousemove', handleMouseMove)
-    element.addEventListener('mouseleave', handleMouseLeave)
+    if (isTouchDevice) return
+    target.value?.addEventListener('mousemove', handleMouseMove)
+    target.value?.addEventListener('mouseleave', handleMouseLeave)
   })
   
   onUnmounted(() => {
-    element.removeEventListener('mousemove', handleMouseMove)
-    element.removeEventListener('mouseleave', handleMouseLeave)
+    if (isTouchDevice) return
+    target.value?.removeEventListener('mousemove', handleMouseMove)
+    target.value?.removeEventListener('mouseleave', handleMouseLeave)
   })
   
   return rotation
