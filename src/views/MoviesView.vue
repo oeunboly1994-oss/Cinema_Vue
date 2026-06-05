@@ -36,6 +36,14 @@
             <option value="rating">Rating</option>
             <option value="releaseDate">Newest</option>
           </select>
+
+          <button 
+            @click="moviesStore.resetFilters"
+            class="p-3 rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-neon"
+            title="Reset Filters"
+          >
+            ↺
+          </button>
         </div>
       </div>
 
